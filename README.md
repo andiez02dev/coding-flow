@@ -16,7 +16,9 @@ Lead / Builder / Reviewer coding workflow for [Orca](https://github.com/stablyai
 
 ## Install
 ```zsh
-./install.sh                      # backs up anything it replaces
+./install.sh                      # links targets to this repo; backs up anything it replaces
+./install.sh --status             # show where each target points
+./install.sh --copy               # copy instead of linking
 cd <worktree> && ~/.orca/flow/layout.sh
 ```
 Bundled skills: `scoped-verify`, `verification-before-completion`, `tdd`, `diagnosing-bugs`. `orchestration`/`orca-cli` come with Orca. Codex/Claude accounts are chosen by you in Orca; the flow never picks accounts. Repo rules always win over this flow.
