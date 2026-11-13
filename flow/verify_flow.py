@@ -34,7 +34,7 @@ with tempfile.TemporaryDirectory(prefix='coding-flow-check-') as tmp:
 import json, os, sys
 with open(os.environ['FLOW_COMMAND_LOG'], 'a') as f: f.write(json.dumps(sys.argv[1:]) + chr(10))
 '''
-    for target in [sandbox / 'claude', flow / 'track.sh', flow / 'codex2', sandbox / 'codex']:
+    for target in [sandbox / 'claude', flow / 'track.sh', sandbox / 'codex']:
         target.write_text(recorder)
         target.chmod(0o755)
     env = dict(os.environ, HOME=str(home), PATH=str(sandbox) + os.pathsep + os.environ['PATH'],
@@ -83,9 +83,8 @@ with open(os.environ['FLOW_COMMAND_LOG'], 'a') as f: f.write(json.dumps(sys.argv
     assert sum(c[:2] == ['terminal', 'split'] for c in calls) == 3
     commands = execute_commands(calls)
     assert commands == [[], [], [], [str(worktree)]], commands
-    assert any('codex2' in value(c, '--command') for c in calls if '--command' in c)
-    assert any(value(c, '--command') == 'codex' for c in calls if '--command' in c)
-    print('PASS: manual fallback keeps four panes and both account commands')
+    assert sum(value(c, '--command') == 'codex' for c in calls if '--command' in c) == 2
+    print('PASS: manual fallback keeps four panes and two codex builders')
 
     (worktree / '.flow/nested').mkdir(parents=True)
     numeric = worktree / '.flow/review-request-r1.md'

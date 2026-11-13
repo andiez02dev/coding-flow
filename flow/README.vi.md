@@ -11,7 +11,7 @@ Mặc định có **Lead + tracker**, tên `Coding Flow · <tên thư mục>`. L
 
 Bạn giao việc → Lead lập plan → tự gọi một Builder → nhận kết quả/kiểm tra → **hỏi bạn trước khi tạo Reviewer**. Mỗi vòng review lại cũng phải được bạn đồng ý. Reviewer là Claude mới, không sửa source. Builder giữ phiên trong cả task; chỉ gọi Builder thứ hai khi chia được trách nhiệm độc lập. Không push/merge nếu bạn chưa giao.
 
-Builder chính dùng tài khoản thứ hai qua `codex2`; Builder thứ hai khi cần dùng tài khoản mặc định. Wrapper tài khoản và cấu hình model toàn máy không bị sửa. Chạy script cần zsh, python3, Orca, Claude và Codex đã được thiết lập/đăng nhập.
+Tài khoản Codex và Claude do bạn tự chọn/chuyển trong Orca; flow không chọn tài khoản. Chạy script cần zsh, python3, Orca, Claude và Codex đã được thiết lập/đăng nhập.
 
 Quy tắc commit: gom sửa liên quan thành một đợt đã kiểm tra, không commit từng comment PR; không ép một ticket chỉ có một commit. Chỉ dọn lịch sử local của nhánh task chưa publish/chia sẻ trước khi bàn giao SHA review. Giữ lịch sử đã push, `main` và các bug độc lập; không force-push. Quy tắc riêng của repo vẫn được ưu tiên. Quy tắc đầy đủ nằm trong `~/.agents/AGENTS.md`, mục Commit policy.
 
@@ -30,7 +30,7 @@ Sau khi đồng ý review, có thể mở Reviewer thủ công bằng round ho�
 
 Không còn tự chọn request mới nhất khi thiếu đối số. Helper thủ công không tự báo kết quả về Lead; cách điều phối trong `coordinator.md` dùng cơ chế nhận kết quả của Orca. Hướng dẫn agent yêu cầu hỏi trước, nhưng helper không tự xác minh đối thoại hoặc cưỡng chế consent bằng chương trình.
 
-Trong worktree triển khai, chạy `python3 verify_flow.py` và `zsh -n layout.sh manual-layout.sh review.sh track.sh codex2`. Lệnh `zsh -n` cần chạy riêng từng file để kiểm tra đủ cả năm script. Kiểm tra dùng executable stub ở ranh giới Orca, không gọi AI hoặc mở UI thật. Kiểm tra không chứng minh callback, tài khoản đăng nhập, model thực tế hay toàn bộ vòng build/review hoạt động. Chưa có số đo tiết kiệm token.
+Trong worktree triển khai, chạy `python3 verify_flow.py` và `zsh -n layout.sh manual-layout.sh review.sh track.sh`. Lệnh `zsh -n` cần chạy riêng từng file để kiểm tra đủ cả bốn script. Kiểm tra dùng executable stub ở ranh giới Orca, không gọi AI hoặc mở UI thật. Kiểm tra không chứng minh callback, tài khoản đăng nhập, model thực tế hay toàn bộ vòng build/review hoạt động. Chưa có số đo tiết kiệm token.
 
 ## Khôi phục
 

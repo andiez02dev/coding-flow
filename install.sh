@@ -10,4 +10,4 @@ put "$here/agents/flow" "$HOME/.agents/flow"
 for s in "$here"/skills/*(/); do put "$s" "$HOME/.agents/skills/${s:t}"; put "$s" "$HOME/.claude/skills/${s:t}"; done
 for l in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md"; do
   mkdir -p "${l:h}"; [[ -e "$l" && ! -L "$l" ]] && mv "$l" "$l.bak-$ts"; ln -sfn "$HOME/.agents/AGENTS.md" "$l"; done
-echo "Installed. Optional: export CODEX2_HOME=<second Codex account home> for builder-1."
+echo "Installed. Choose Codex/Claude accounts in Orca."

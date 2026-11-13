@@ -10,22 +10,18 @@ Một task = một worktree = một branch, trừ khi repo quy định khác. Gh
 
 ## Builder (tự động, không cần hỏi)
 
-Mặc định một Builder, tài khoản thứ hai qua `~/.orca/flow/codex2` (không sửa wrapper, không đọc credential; đừng giả định `--agent codex` chọn tài khoản này).
+Mặc định một Builder Codex. Tài khoản Codex/Claude do người dùng chọn trong Orca; không chọn, đổi hay đọc tài khoản/credential.
 
 1. Viết `.flow/builder-request.md`: Role: Builder, plan, file được sửa, Verify, ghi tested SHA/kết quả/exit code vào Build log, Commit policy trong `~/.agents/AGENTS.md`, không push/merge, báo theo preamble điều phối. Vòng sửa: ghi findings + Verify theo `scoped-verify`; full Verify chạy trên HEAD cuối trước vòng review cuối.
-2. Tạo terminal nền, lấy **đúng handle từ JSON thành công**:
-   ```zsh
-   orca terminal create --worktree current --title builder-1 --command "${(q)HOME}/.orca/flow/codex2" --json
-   ```
-3. Giao việc qua Orca, không gõ prompt vào terminal:
+2. Giao việc qua Orca, không gõ prompt vào terminal:
    ```text
-   orca orchestration worker-start --worktree current --terminal <handle> --spec-file .flow/builder-request.md --keep-open --json
+   orca orchestration worker-start --agent codex --worktree current --spec-file .flow/builder-request.md --keep-open --json
    ```
    Ghi dispatch ID vào plan. Start lỗi/không rõ: theo recovery guide, không start lại như mới.
-4. **Kết thúc lượt sau khi giao**; Orca báo khi xong/bị chặn. Không poll. Giữ Builder cho task để sửa tiếp.
-5. Nhận kết quả: đọc Build log, tested SHA, trạng thái checkout, kết quả Verify (`built` tự ghi không phải bằng chứng). Thiếu/đỏ thì `send --to dispatch:<id>` với request cập nhật; Lead không tự sửa source.
+3. **Kết thúc lượt sau khi giao**; Orca báo khi xong/bị chặn. Không poll. Giữ Builder cho task để sửa tiếp.
+4. Nhận kết quả: đọc Build log, tested SHA, trạng thái checkout, kết quả Verify (`built` tự ghi không phải bằng chứng). Thiếu/đỏ thì `send --to dispatch:<id>` với request cập nhật; Lead không tự sửa source.
 
-Builder 2 chỉ khi phạm vi file độc lập và hợp đồng chung đã rõ (tài khoản mặc định chạy `codex`); không để hai Builder sửa file chung. Không mở agent chỉ để hỏi tiến độ.
+Builder 2 chỉ khi phạm vi file độc lập và hợp đồng chung đã rõ (cũng `--agent codex`); không để hai Builder sửa file chung. Không mở agent chỉ để hỏi tiến độ.
 
 Trước khi gửi SHA review: Builder đã gom commit theo Commit policy, dọn lịch sử local (nếu đủ điều kiện) đã xong, Verify áp dụng cho HEAD cuối. SHA đổi thì PASS cũ hết hiệu lực.
 
