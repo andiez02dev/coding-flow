@@ -19,9 +19,9 @@ Lead / Builder / Reviewer coding workflow for [Orca](https://github.com/stablyai
 ./install.sh                      # backs up anything it replaces
 cd <worktree> && ~/.orca/flow/layout.sh
 ```
-Uses other skills you install separately (e.g. `orchestration`, `tdd`, `diagnosing-bugs`). Codex/Claude accounts are chosen by you in Orca; the flow never picks accounts. Repo rules always win over this flow.
+Bundled skills: `scoped-verify`, `verification-before-completion`, `tdd`, `diagnosing-bugs`. `orchestration`/`orca-cli` come with Orca. Codex/Claude accounts are chosen by you in Orca; the flow never picks accounts. Repo rules always win over this flow.
 
 ## Test
 `python3 flow/verify_flow.py` (stubs the Orca boundary; does not run real AI sessions).
 
-`skills/verification-before-completion` is from obra/superpowers (MIT).
+MIT licensed. `tdd` and `diagnosing-bugs` are from [mattpocock/skills](https://github.com/mattpocock/skills), `verification-before-completion` from [obra/superpowers](https://github.com/obra/superpowers), both MIT; see `THIRD_PARTY_NOTICES.md`.
