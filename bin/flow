@@ -1,0 +1,108 @@
+#!/bin/zsh
+# flow: short commands for Coding Flow in any Orca repo.
+set -euo pipefail
+FLOW="$HOME/.orca/flow"
+SRC=${0:A}   # symlinks resolved -> <repo>/bin/flow
+
+usage() { cat <<'EOF'
+Usage: flow <command> [args]
+
+  new <name> [-r repo] [-b base]   create an Orca worktree and open Coding Flow in it
+  open [worktree]                  open Coding Flow (Lead + tracker)
+  manual [worktree]                open the 4-pane manual layout
+  track [worktree]                 run the tracker in this terminal
+  review <worktree> <round|request.md>   open a Reviewer (only after you approved it)
+  ls [-r repo]                     list worktrees (current repo, or all repos outside one)
+  status                           check the Coding Flow install links
+
+<worktree> is a path, or a worktree name from `flow ls`; omitted = current directory.
+<repo> is an Orca repo name (`orca repo list`) or a path; omitted = repo of the current directory.
+EOF
+}
+
+die() { print -u2 -- "flow: $*"; exit 1; }
+
+# Main checkout of the git repo containing $1 (works from linked worktrees too).
+main_repo() {
+  local d; d=$(git -C "$1" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
+  print -r -- "${d:h}"
+}
+
+# Orca --repo selector from -r value or the current directory.
+repo_selector() {
+  if [[ -n ${1:-} ]]; then
+    if [[ -d $1 ]]; then print -r -- "path:$(main_repo "$1" || print -r -- "${1:A}")"
+    else print -r -- "name:$1"; fi
+  else
+    local r; r=$(main_repo "$PWD") || return 1
+    print -r -- "path:$r"
+  fi
+}
+
+# Resolve a worktree argument (path, name or empty) to an absolute path.
+resolve_wt() {
+  local arg=${1:-}
+  [[ -z $arg ]] && { print -r -- "$PWD"; return; }
+  [[ -d $arg ]] && { print -r -- "${arg:A}"; return; }
+  local here; here=$(main_repo "$PWD" 2>/dev/null || true)
+  orca worktree list --limit 1000 --json | python3 -c '
+import json, os, sys
+name, here = sys.argv[1], sys.argv[2]
+d = json.load(sys.stdin)
+if d.get("ok") is False: sys.exit("flow: Orca refused the worktree list")
+ws = d["result"]["worktrees"]
+hits = [w for w in ws if name in (w.get("displayName"), os.path.basename(w.get("path", "")))]
+if len(hits) > 1 and here:
+    mine = {w.get("repoId") for w in ws if w.get("path") == here}
+    hits = [w for w in hits if w.get("repoId") in mine] or hits
+hits = [w["path"] for w in hits]
+if not hits: sys.exit("flow: no Orca worktree named " + repr(name) + " (see: flow ls)")
+if len(hits) > 1: sys.exit("flow: several worktrees named " + repr(name) + ", pass a path:\n  " + "\n  ".join(hits))
+print(hits[0])' "$arg" "$here"
+}
+
+cmd=${1:-help}; (( $# )) && shift
+case $cmd in
+  new)
+    (( $# )) || die "usage: flow new <name> [-r repo] [-b base]"
+    name=$1; shift; repo=""; base=""
+    while (( $# )); do
+      case $1 in
+        -r|--repo) repo=${2:?}; shift 2 ;;
+        -b|--base) base=${2:?}; shift 2 ;;
+        *) die "unknown option: $1" ;;
+      esac
+    done
+    sel=$(repo_selector "$repo") || die "not inside a git repo; pass -r <repo> (see: orca repo list)"
+    args=(worktree create --repo "$sel" --name "$name" --no-parent --json)
+    [[ -n $base ]] && args+=(--base-branch "$base")
+    wt=$(orca "${args[@]}" | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+w = (d.get("result") or {}).get("worktree") or {}
+if d.get("ok") is False or not w.get("path"): sys.exit("flow: Orca did not create the worktree")
+print(w["path"])')
+    print -r -- "worktree: $wt"
+    exec "$FLOW/layout.sh" "$wt" ;;
+  open|manual|track)
+    wt=$(resolve_wt "${1:-}")   # separate assignment so a failed lookup stops here
+    case $cmd in open) exec "$FLOW/layout.sh" "$wt" ;; manual) exec "$FLOW/manual-layout.sh" "$wt" ;;
+      track) exec "$FLOW/track.sh" "$wt" ;; esac ;;
+  review)
+    (( $# == 2 )) || die "usage: flow review <worktree> <round|request.md>"
+    wt=$(resolve_wt "$1"); exec "$FLOW/review.sh" "$wt" "$2" ;;
+  ls)
+    repo=""; [[ ${1:-} == (-r|--repo) ]] && repo=${2:?}
+    args=(worktree list --limit 1000)
+    sel=$(repo_selector "$repo" 2>/dev/null) && args+=(--repo "$sel")
+    orca "${args[@]}" --json | python3 -c '
+import json, sys
+for w in json.load(sys.stdin)["result"]["worktrees"]:
+    br = (w.get("branch") or "").removeprefix("refs/heads/")
+    print("%-34s %-40s %s" % (w.get("displayName") or "", br, w["path"]))' ;;
+  status)
+    [[ -x ${SRC:h:h}/install.sh ]] || die "install.sh not found next to $SRC (copy install?); run it from the repo"
+    exec "${SRC:h:h}/install.sh" --status ;;
+  help|-h|--help) usage ;;
+  *) usage >&2; exit 1 ;;
+esac

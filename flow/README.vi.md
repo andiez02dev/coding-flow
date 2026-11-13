@@ -1,5 +1,19 @@
 # Coding Flow
 
+Lệnh ngắn `flow` (cài ở `~/.local/bin/flow`), dùng cho mọi repo đã thêm vào Orca. Repo lấy từ `-r <tên|đường dẫn>` hoặc thư mục đang đứng:
+
+```sh
+flow new FNX-60-ten-task [-b base] [-r repo]   # tạo worktree + mở Lead và tracker
+flow open [worktree]                           # mở flow; worktree = tên trong `flow ls` hoặc đường dẫn, mặc định thư mục hiện tại
+flow manual [worktree]                         # bố cục 4 pane
+flow track [worktree]                          # tracker ngay trong terminal này
+flow review <worktree> <round|request.md>      # mở Reviewer, chỉ sau khi bạn đồng ý
+flow ls [-r repo]                              # liệt kê worktree
+flow status                                    # kiểm tra link cài đặt
+```
+
+Các script gốc bên dưới vẫn dùng được trực tiếp.
+
 Mở flow cho một worktree bất kỳ đã có trong Orca:
 
 ```sh
@@ -7,7 +21,7 @@ Mở flow cho một worktree bất kỳ đã có trong Orca:
 ~/.orca/flow/layout.sh /đường/dẫn/worktree "Tên riêng"
 ```
 
-Mặc định có **Lead + tracker**, tên `Coding Flow · <tên thư mục>`. Lead dùng **Claude Opus 5.5 · high** và đọc hướng dẫn điều phối ngay lúc khởi động. Chưa có task thì Lead chờ bạn giao việc. Mở flow không tự chuyển focus; các terminal cũ không bị đóng hoặc đổi cấu hình.
+Mặc định có **Lead + tracker**, tên `Coding Flow · <tên thư mục>`. Lead dùng **Claude Opus 5.5 · high**; hướng dẫn điều phối (`coordinator.md`) được nạp sẵn vào system prompt nên không có tin nhắn mở đầu. Chưa có task thì Lead chờ bạn giao việc. Mở flow không tự chuyển focus; các terminal cũ không bị đóng hoặc đổi cấu hình.
 
 Bạn giao việc → Lead lập plan → tự gọi một Builder → nhận kết quả/kiểm tra → **hỏi bạn trước khi tạo Reviewer**. Mỗi vòng review lại cũng phải được bạn đồng ý. Reviewer là Claude mới, không sửa source. Builder giữ phiên trong cả task; chỉ gọi Builder thứ hai khi chia được trách nhiệm độc lập. Không push/merge nếu bạn chưa giao.
 

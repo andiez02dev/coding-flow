@@ -12,6 +12,7 @@ pairs=(
   "$here/flow"              "$HOME/.orca/flow"
   "$here/agents/AGENTS.md"  "$HOME/.agents/AGENTS.md"
   "$here/agents/flow"       "$HOME/.agents/flow"
+  "$here/bin/flow"          "$HOME/.local/bin/flow"
 )
 for s in "$here"/skills/*(/); do
   pairs+=("$s" "$HOME/.agents/skills/${s:t}" "$s" "$HOME/.claude/skills/${s:t}")
@@ -40,3 +41,4 @@ for src dst in "${pairs[@]}"; do
   if [[ $mode == --copy && $src == $here/* ]]; then cp -R "$src" "$dst"; else ln -s "$src" "$dst"; fi
 done
 echo "Installed ($mode). Backups (if any): $bk. Choose Codex/Claude accounts in Orca."
+[[ :$PATH: == *:$HOME/.local/bin:* ]] || echo "Add ~/.local/bin to PATH to use the 'flow' command."

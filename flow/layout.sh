@@ -20,9 +20,8 @@ try:
     print(found.pop())
 except (ValueError, TypeError) as e:
     sys.exit(str(e))'; }
-PROMPT="Role: Lead. Read $FLOW/coordinator.md and follow the Coding Flow. Wait for the user's task if none has been given."
 LEAD=$(orca terminal create --worktree "path:$WT" --title "$TITLE" \
-  --command "claude --model claude-opus-5-5 --effort high ${(q)PROMPT}" --json | h)
+  --command "claude --model claude-opus-5-5 --effort high --append-system-prompt-file ${(q)FLOW}/coordinator.md" --json | h)
 TR=$(orca terminal split --terminal "$LEAD" --direction horizontal \
   --command "${(q)FLOW}/track.sh ${(q)WT}" --json | h)
 orca terminal set-pane-title --terminal "$LEAD" --title "lead · Claude Opus 5.5 high" >/dev/null

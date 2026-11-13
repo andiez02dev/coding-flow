@@ -13,13 +13,25 @@ Lead / Builder / Reviewer coding workflow for [Orca](https://github.com/stablyai
 | `agents/AGENTS.md` | `~/.agents/AGENTS.md`, linked as `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` |
 | `agents/flow/plan.template.md` | `~/.agents/flow/` |
 | `skills/` | `~/.agents/skills/` and `~/.claude/skills/` |
+| `bin/flow` | `~/.local/bin/flow` (short commands, see below) |
 
 ## Install
 ```zsh
 ./install.sh                      # links targets to this repo; backs up anything it replaces
 ./install.sh --status             # show where each target points
 ./install.sh --copy               # copy instead of linking
-cd <worktree> && ~/.orca/flow/layout.sh
+```
+
+## Commands
+`flow` works in any repo registered in Orca. The repo comes from `-r <name|path>` or the current directory.
+```zsh
+flow new FNX-60-some-task [-b base] [-r repo]   # create an Orca worktree and open Lead + tracker
+flow open [worktree]                            # open Coding Flow; worktree = name from `flow ls` or path, default cwd
+flow manual [worktree]                          # 4-pane manual layout
+flow track [worktree]                           # tracker in this terminal
+flow review <worktree> <round|request.md>       # Reviewer, only after you approved the round
+flow ls [-r repo]                               # worktrees of the current repo (all repos outside one)
+flow status                                     # install links
 ```
 Bundled skills: `scoped-verify`, `verification-before-completion`, `tdd`, `diagnosing-bugs`. `orchestration`/`orca-cli` come with Orca. Codex/Claude accounts are chosen by you in Orca; the flow never picks accounts. Repo rules always win over this flow.
 

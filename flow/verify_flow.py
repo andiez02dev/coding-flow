@@ -71,11 +71,11 @@ with open(os.environ['FLOW_COMMAND_LOG'], 'a') as f: f.write(json.dumps(sys.argv
         assert value(calls[0], '--worktree') == 'path:' + str(worktree)
         assert sum(c[:2] == ['terminal', 'split'] for c in calls) == 1
         commands = execute_commands(calls)
-        assert commands[0][:4] == ['--model', 'claude-opus-5-5', '--effort', 'high'], commands
-        assert commands[0][4].startswith('Role: Lead.') and str(flow / 'coordinator.md') in commands[0][4]
+        assert commands[0] == ['--model', 'claude-opus-5-5', '--effort', 'high',
+                               '--append-system-prompt-file', str(flow / 'coordinator.md')], commands
         assert commands[1] == [str(worktree)], commands
         assert not (worktree / 'INJECTED').exists()
-    print('PASS: default/custom/cwd layout, model, role and safe command arguments')
+    print('PASS: default/custom/cwd layout, model, Lead guide preloaded as system prompt, safe command arguments')
 
     result, calls = run('manual-layout.sh', [str(worktree)])
     assert result.returncode == 0, result.stderr
@@ -117,3 +117,51 @@ with open(os.environ['FLOW_COMMAND_LOG'], 'a') as f: f.write(json.dumps(sys.argv
                 assert len(calls) == stage, (script, stage, mode, calls)
                 assert not result.stdout.strip(), (script, stage, mode, result.stdout)
     print('PASS: Orca refusal/nonzero/malformed/missing handle stops without success or further commands')
+
+    # bin/flow: worktree name lookup and `new` wiring, against a stubbed Orca.
+    repo = sandbox / 'repo'
+    subprocess.run(['git', 'init', '-q', str(repo)], check=True)
+    wt_path = sandbox / 'wt-FNX-1'
+    wt_path.mkdir()
+    listing = {'ok': True, 'result': {'worktrees': [
+        {'repoId': 'r1', 'displayName': 'main', 'path': str(repo)},
+        {'repoId': 'r1', 'displayName': 'FNX-1', 'path': str(wt_path)},
+        {'repoId': 'r2', 'displayName': 'dup', 'path': '/x/a/dup'},
+        {'repoId': 'r3', 'displayName': 'dup', 'path': '/x/b/dup'}]}}
+    fake.write_text('''#!/usr/bin/env python3
+import json, os, sys
+with open(os.environ['FLOW_CALL_LOG'], 'a') as f: f.write(json.dumps(sys.argv[1:]) + chr(10))
+if sys.argv[1:3] == ['worktree', 'list']: print(os.environ['FLOW_LISTING'])
+elif sys.argv[1:3] == ['worktree', 'create']: print(json.dumps({'ok': True, 'result': {'worktree': {'path': os.environ['FLOW_NEW_PATH']}}}))
+else: sys.exit(9)
+''')
+    for name in ['layout.sh', 'manual-layout.sh']:
+        (flow / name).write_text(recorder)
+        (flow / name).chmod(0o755)
+    fenv = dict(env, FLOW_LISTING=json.dumps(listing), FLOW_NEW_PATH=str(wt_path))
+
+    def flow_cmd(args, cwd):
+        log.unlink(missing_ok=True)
+        command_log.unlink(missing_ok=True)
+        r = subprocess.run(['zsh', str(ROOT.parent / 'bin/flow'), *args], cwd=cwd, env=fenv,
+                           capture_output=True, text=True)
+        calls = [json.loads(l) for l in log.read_text().splitlines()] if log.exists() else []
+        ran = [json.loads(l) for l in command_log.read_text().splitlines()] if command_log.exists() else []
+        return r, calls, ran
+
+    r, calls, ran = flow_cmd(['open', 'FNX-1'], sandbox)
+    assert r.returncode == 0 and ran == [[str(wt_path)]], (r.stderr, ran)
+    r, calls, ran = flow_cmd(['open', 'dup'], sandbox)
+    assert r.returncode != 0 and not ran and 'several' in r.stderr, (r.stderr, ran)
+    r, calls, ran = flow_cmd(['open', 'missing'], sandbox)
+    assert r.returncode != 0 and not ran, (r.stderr, ran)
+    r, calls, ran = flow_cmd(['new', 'FNX-2', '-b', 'develop'], repo)
+    assert r.returncode == 0 and ran == [[str(wt_path)]], (r.stderr, ran)
+    c = calls[0]
+    assert c[:2] == ['worktree', 'create'] and value(c, '--repo') == 'path:' + str(repo.resolve()), c
+    assert value(c, '--name') == 'FNX-2' and value(c, '--base-branch') == 'develop' and '--no-parent' in c, c
+    r, calls, ran = flow_cmd(['new', 'FNX-3', '-r', 'other-repo'], sandbox)
+    assert r.returncode == 0 and value(calls[0], '--repo') == 'name:other-repo', (r.stderr, calls)
+    r, calls, ran = flow_cmd(['new', 'FNX-4'], sandbox)
+    assert r.returncode != 0 and not calls and not ran, (r.stderr, calls)
+    print('PASS: flow open/new resolve worktree names and repos, refuse ambiguous or missing targets')
