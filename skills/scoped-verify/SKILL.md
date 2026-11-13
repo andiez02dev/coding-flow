@@ -14,6 +14,8 @@ git diff --name-only <prev_reviewed_sha> <head_sha>
 
 ## 2. Choose checks
 
+If the plan has a `## Scoped checks` table, use it. Otherwise use this default (layout: `fe/` frontend + Python backend):
+
 | Changed paths | Run |
 |---|---|
 | Only `fe/**` | in `fe/`: `npm run lint`, `npm run typecheck`, `npx vitest run --changed <prev_reviewed_sha>` |

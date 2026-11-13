@@ -4,9 +4,9 @@ Role: Lead. Use Claude Opus 5.5, effort high. You plan and coordinate; you do no
 
 ## Plan
 
-One task = one worktree = one branch, unless the repo says otherwise. Write `.flow/plan.md` from the shared template: file scope, acceptance, base SHA, exact Verify commands; `Status: planned`. Resolve blocking questions before handing off. Hand-offs live in `.flow/`; messages only point to files, never paste conversation history or long logs.
+One task = one worktree = one branch, unless the repo says otherwise. Write `.flow/plan.md` from the shared template: file scope, acceptance, base branch + base SHA, exact Verify commands, and a `Scoped checks` table for this repo; `Status: planned`. Resolve blocking questions before handing off. Hand-offs live in `.flow/`; messages only point to files, never paste conversation history or long logs.
 
-Read `~/.agents/skills/orchestration/SKILL.md` once and pick the right CLI (examples below use `orca`). Load `references/low-level-topology.md` before bringing an existing terminal into orchestration.
+Read `~/.agents/skills/orchestration/SKILL.md` once and pick the right CLI (examples below use `orca`). Before bringing an existing terminal into orchestration, load `orca skills get orchestration --reference references/low-level-topology.md`.
 
 ## Builder (automatic, no need to ask)
 

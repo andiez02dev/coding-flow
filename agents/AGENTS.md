@@ -7,13 +7,13 @@
 
 - Bug, crash, failing test, or slowdown: use the `diagnosing-bugs` skill before proposing a fix.
 - New feature or behavior change with a test setup available: use the `tdd` skill.
-- In Codex, when using the shared engineering skills imported from Claude/Cursor, read `~/.agents/docs/harness/codex.md` once per session for tool and model mappings.
+- In Codex, when using the shared engineering skills imported from Claude/Cursor, read `~/.agents/docs/harness/codex.md` once per session if it exists (optional, not part of this repo) for tool and model mappings.
 
 # Coding flow (lead / builder / reviewer)
 
 One task = one worktree = one branch. Hand-offs go through files in `.flow/` at the worktree root (ignored by git), never through chat paste. The repo's own AGENTS.md wins on any conflict (branch lifetime, checks, push rules).
 
-The prompt names your role. If it does not, ask.
+This section applies only when the prompt names a Coding Flow role (Lead, Builder, Reviewer) or the worktree has `.flow/plan.md`; otherwise ignore it. Inside the flow, if your role is unclear, ask.
 
 ## Lead (Claude): investigate and plan
 - Read the ticket (Jira key in the branch or prompt), the repo AGENTS.md and the code. Do not edit source files.
