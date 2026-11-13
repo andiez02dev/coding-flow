@@ -1,0 +1,5 @@
+#!/bin/zsh
+# Codex on a second account with its own quota. Set CODEX2_HOME to that account's CODEX_HOME
+# (e.g. in ~/.zshenv). Falls back to the default account if unset.
+if [[ -n "${CODEX2_HOME:-}" ]]; then CODEX_HOME="$CODEX2_HOME" exec codex "$@"; fi
+exec codex "$@"
