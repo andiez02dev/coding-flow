@@ -30,7 +30,7 @@ B2=$(orca terminal split --terminal "$B1"   --direction horizontal --command "co
 TR=$(orca terminal split --terminal "$LEAD" --direction horizontal --command "${(q)FLOW}/track.sh ${(q)WT}" --json | h)
 
 orca terminal set-pane-title --terminal "$LEAD" --title "lead · claude (manual)" >/dev/null
-orca terminal set-pane-title --terminal "$B1"   --title "builder-1 · codex (task chính)" >/dev/null
-orca terminal set-pane-title --terminal "$B2"   --title "builder-2 · codex (hàng phụ)" >/dev/null
+orca terminal set-pane-title --terminal "$B1"   --title "builder-1 · codex (main)" >/dev/null
+orca terminal set-pane-title --terminal "$B2"   --title "builder-2 · codex (secondary)" >/dev/null
 orca terminal set-pane-title --terminal "$TR"   --title "tracker" >/dev/null
 echo "lead=$LEAD builder1=$B1 builder2=$B2 tracker=$TR"

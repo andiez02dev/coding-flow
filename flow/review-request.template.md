@@ -1,38 +1,38 @@
 # Review request — <task> — round <n>
 
-Role: Reviewer (Claude, fresh session). Chỉ bắt đầu khi Lead đã nhận đồng ý của người dùng cho vòng này. Không sửa source; được ghi report và trạng thái trong .flow. Nếu được Orca giao, làm theo preamble và báo kết quả qua cơ chế điều phối.
+Role: Reviewer (Claude, fresh session). Start only after the Lead has the user's consent for this round. Do not edit source; you may write the report and status in .flow. If dispatched by Orca, follow its preamble and report through orchestration.
 
-Plan: <đường-dẫn-plan>
+Plan: <plan-path>
 Base SHA: <base-commit>
-Head SHA: <commit-cần-review>
+Head SHA: <commit-to-review>
 Round: <n>
-Previous review: <report hoặc none>
-Previous reviewed SHA: <commit hoặc none>
+Previous review: <report or none>
+Previous reviewed SHA: <commit or none>
 Report: .flow/review.md
 
-## Phạm vi và acceptance
-- <file/chức năng, acceptance cần kiểm tra>
-- <vòng sau: findings cần xác nhận, diff mới, ảnh hưởng liên quan>
+## Scope and acceptance
+- <files/features, acceptance to check>
+- <later rounds: findings to confirm, new diff, related impact>
 
 ## Verify
 ```sh
-<lệnh chính xác và điều kiện môi trường>
+<exact commands and environment conditions>
 ```
 
-Đọc plan và rules repo, kiểm tra đúng base/head, không có checkout đang đổi; repo có quyền ưu tiên. Đọc diff và code liên quan, acceptance, phạm vi và tests. Chạy kiểm tra theo skill `scoped-verify` (chọn test theo diff từ previous reviewed SHA; đủ bộ/Postgres chỉ ở vòng cuối hoặc khi đụng DB/migration), trừ khi plan/rules bắt buộc khác, ghi lệnh, exit code và bằng chứng; kiểm tra đỏ/không chạy được phải nói rõ, không báo PASS. Không dùng trạng thái built thay cho bằng chứng.
+Read the plan and repo rules; confirm base/head and that no checkout is changing; repo rules take precedence. Read the diff and related code, acceptance, scope and tests. Pick checks with the `scoped-verify` skill (diff since the previous reviewed SHA; full suite/Postgres only in the final round or for DB/migration changes) unless the plan/rules require otherwise. Record commands, exit codes and evidence; red or unrunnable checks must be stated, never reported as PASS. A `built` status is not evidence.
 
-Report cần:
+Report:
 ```text
-Verdict: PASS hoặc CHANGES
-Reviewed SHA: <commit-thực-tế-đã-review>
+Verdict: PASS or CHANGES
+Reviewed SHA: <commit actually reviewed>
 Blocking findings:
-- file:line — vấn đề — cách sửa
+- file:line — problem — fix
 Optional suggestions:
-- <góp ý không chặn>
+- <non-blocking>
 Checks:
-- <lệnh> → <exit code, pass/fail, log>
+- <command> → <exit code, pass/fail, log>
 Limitations:
-- <phần chưa xác minh>
+- <what was not verified>
 ```
 
-Lỗi chức năng, dữ liệu, bảo mật, accessibility, acceptance/rules hoặc bằng chứng thiếu có thể chặn. Sở thích phong cách không có tác hại cụ thể là tùy chọn. Cập nhật plan `Status: review-pass` khi PASS hoặc `Status: changes` khi CHANGES; không commit source/push/merge. Không tự tạo Reviewer khác.
+Functional, data, security, accessibility, acceptance/rules issues or missing evidence may block. Style preferences without concrete harm are optional. Set plan `Status: review-pass` on PASS or `Status: changes` on CHANGES; do not commit source, push or merge. Do not create another Reviewer.
