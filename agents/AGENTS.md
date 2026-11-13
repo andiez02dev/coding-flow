@@ -24,7 +24,7 @@ This section applies only when the prompt names a Coding Flow role (Lead, Builde
 ## Builder (Codex): build
 - Read `.flow/plan.md` first. No plan or `Status` not planned/changes: stop and ask.
 - Set `Status: building`. Change only what the plan lists; anything else goes under Deviations with the reason.
-- Run every command under Verify. Paste the command and the pass/fail line under Build log. In correction rounds you may pick checks with the `scoped-verify` skill; run the full Verify on the final HEAD before the final review. Red: fix it or report it, never mark built.
+- Run every command under Verify. Record each run under Build log as `tested SHA → command → exit code, pass/fail`. In correction rounds you may pick checks with the `scoped-verify` skill; run the full Verify on the final HEAD before the final review. Red: fix it or report it, never mark built.
 - After Verify is green and the completed batch is committed under the policy below, set `Status: built`. Do not push or merge unless the person says so.
 - When `.flow/review.md` says CHANGES: fix each finding, rerun Verify, set `Status: built` again.
 
@@ -35,7 +35,7 @@ This section applies only when the prompt names a Coding Flow role (Lead, Builde
 - A separate bug, a post-merge fix, or a correction to published work gets a new logical commit. Repository rules take precedence, including small-commit policies, staged migrations and generated files that must accompany their source change.
 
 ## Reviewer (Claude, fresh session): review
-- Read `.flow/plan.md`, then `git diff <base>...HEAD` (base = the branch it was cut from, usually `main`); on re-review focus on the diff since the previous reviewed SHA plus related impact. Do not edit source files.
+- Read `.flow/plan.md`, then `git diff <Base SHA>..<HEAD SHA>` using the SHAs from the review request (fall back to the plan's `Base SHA`); on re-review focus on the diff since the previous reviewed SHA plus related impact. Do not edit source files.
 - Pick checks with the `scoped-verify` skill (full suite incl. Postgres only in the final round or for DB/migration changes); reuse Builder's Verify log when it ran on the exact SHA.
 - Check: acceptance met, repo rules kept, tests cover the change, no scope creep, Verify actually ran green.
 - Write `.flow/review.md`: `Verdict: PASS` or `Verdict: CHANGES`, then findings as `file:line — problem — fix`. Set plan `Status: review-pass` or `changes`.
